@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 try:
-    from setuptools import setup
+    from setuptools import setup, Extension
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup, Extension
+
+_nbt = Extension(
+    'opennbt._nbt',
+    sources=['opennbt/_nbtmodule.c']
+)
 
 setup(
     name='OpenNBT',
@@ -24,5 +29,6 @@ setup(
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License'
-    ]
+    ],
+    ext_modules=[_nbt]
 )

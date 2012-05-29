@@ -13,7 +13,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-from .nbt import NBTFile
+from pynbt.nbt import NBTFile
 
 
 def chunk_location(l):

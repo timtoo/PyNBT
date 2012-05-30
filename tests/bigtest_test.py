@@ -2,12 +2,9 @@
 # -*- coding: utf8 -*-
 import array
 import unittest
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 from pynbt import NBTFile
+from io import BytesIO
 
 # bigtest.nbt
 BIG_TEST = array.array('B', [
@@ -59,7 +56,7 @@ BIG_TEST = array.array('B', [
 
 class BigTest(unittest.TestCase):
     def setUp(self):
-        self.io = StringIO(BIG_TEST)
+        self.io = BytesIO(BIG_TEST)
 
     def test_parse(self):
         """
@@ -70,6 +67,7 @@ class BigTest(unittest.TestCase):
         self.assertTrue(len(nbt) == 11)
 
         # Test 3 tag types, and deep compounds.
+        print(nbt.pretty())
         tag = nbt['listTest (compound)'].value[0]['created-on']
         self.assertTrue(tag.value == 1264099775885)
 

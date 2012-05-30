@@ -1,6 +1,7 @@
 import gzip
 import struct
 
+
 def is_pocket(io, compressed=True):
     """
     Returns `False` if the given file `io` is not an (Android) Minecraft

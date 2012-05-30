@@ -10,12 +10,12 @@ import struct
 
 def _read_utf8(rd):
     length, = rd('h')
-    return rd('%ds' % length)[0]
+    return rd('%ds' % length)[0].decode('utf8')
 
 
 def _write_utf8(wt, value):
     l = len(value)
-    wt('h%ss' % l, l, value)
+    wt('h%ss' % l, l, value.encode('utf8'))
 
 
 class BaseTag(object):
@@ -85,18 +85,18 @@ class BaseTag(object):
                     item = _tags[self._type](item)
                 item.write(wt)
         elif isinstance(self, TAG_Compound):
-            for v in self.value.itervalues():
+            for v in self.value.values():
                 v.write(wt)
             wt('b', 0)
         elif isinstance(self, TAG_String):
             l = len(self.value)
-            wt('h%ss' % l, l, self.value)
+            wt('h%ss' % l, l, self.value.encode('utf8'))
         elif isinstance(self, TAG_Int_Array):
             l = len(self.value)
             wt('i%si' % l, l, *self.value)
         elif isinstance(self, TAG_Byte_Array):
             l = len(self.value)
-            wt('i%ss' % l, l, self.value)
+            wt('i%ss' % l, l, self.value.encode('utf8'))
         else:
             wt(self.STRUCT_FMT, self.value)
 
@@ -206,7 +206,7 @@ class TAG_Compound(BaseTag, dict):
             len(self.value)
         ))
         t.append('%s{' % (indent_str * indent))
-        for v in self.itervalues():
+        for v in self.values():
             t.append(v.pretty(indent + 1))
         t.append('%s}' % (indent_str * indent))
 
@@ -273,7 +273,7 @@ class NBTFile(TAG_Compound):
             super(NBTFile, self).__init__(value if value else {}, name)
             return
 
-        f = open(io, 'rb') if isinstance(io, basestring) else io
+        f = io if hasattr(io, 'read') else open(io, 'rb')
         g = gzip.GzipFile(fileobj=f, mode='rb') if compressed else f
 
         if little_endian:
@@ -292,7 +292,7 @@ class NBTFile(TAG_Compound):
         super(NBTFile, self).__init__(tmp, tmp.name)
 
         # Close io only if we're the one who opened it.
-        if isinstance(io, basestring):
+        if not hasattr(io, 'read'):
             # This will not close the underlying fileobj.
             if compressed:
                 g.close()
@@ -303,7 +303,7 @@ class NBTFile(TAG_Compound):
         Saves the `NBTFile()` to `io` which is either a path or a file-like
         object providing `write()`.
         """
-        f = open(io, 'wb') if isinstance(io, basestring) else io
+        f = io if hasattr(io, 'read') else open(io, 'wb')
         g = gzip.GzipFile(fileobj=f, mode='wb') if compressed else f
 
         if little_endian:
@@ -314,7 +314,7 @@ class NBTFile(TAG_Compound):
         self.write(w)
 
         # Close io only if we're the one who opened it.
-        if isinstance(io, basestring):
+        if not hasattr(io, 'read'):
             if compressed:
                 g.close()
             f.close()

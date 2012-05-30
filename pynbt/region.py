@@ -8,10 +8,14 @@ performance both in speed or size.
 import zlib
 import struct
 import os.path
+
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    try:
+        from cStringIO import StringIO
+    except ImportError:
+        from StringIO import StringIO
 
 from pynbt.nbt import NBTFile
 

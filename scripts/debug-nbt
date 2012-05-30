@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 'uncompressed'
             ]
         )
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         print(str(e))
         sys.exit(2)
 
@@ -51,12 +51,12 @@ if __name__ == '__main__':
         usage(sys.argv[0])
         sys.exit(0)
 
-    out = open(output, 'wb') if isinstance(output, basestring) else output
+    out = output if hasattr(output, 'read') else open(output, 'wb')
 
     for arg in args:
         n = NBTFile(arg, compressed=compressed)
         out.write(n.pretty())
         out.write('\n')
 
-    if isinstance(output, basestring):
+    if not hasattr(output, 'read'):
         out.close()
